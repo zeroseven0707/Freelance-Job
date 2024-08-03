@@ -6,15 +6,31 @@ use App\Http\Controllers\Controller;
 use App\Imports\ContentIdeasImport;
 use App\Models\ContentIdea;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ContentIdeaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $perPage = 10; // Jumlah item per halaman, bisa disesuaikan sesuai kebutuhan
-            $data = ContentIdea::paginate($perPage);
+            if (Auth::user()->role == 'admin') {
+                if ($request->freelanceId) {
+                    $data = ContentIdea::where('freelance_id',$request->freelanceId)->paginate($perPage);
+                }else{
+                    $data = ContentIdea::paginate($perPage);
+                }
+            }else{
+                if ($request->freelanceId) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Forbidden.'
+                    ], 403);
+                }else{
+                $data = ContentIdea::where('freelance_id',Auth::user()->id)->paginate($perPage);
+            }
+        }
     
             // Format data paginasi
             $pagination = [
@@ -44,12 +60,20 @@ class ContentIdeaController extends Controller
     public function show($id)
     {
         try {
-            $data = ContentIdea::findOrFail($id);
+            if (Auth::user()->role == 'admin') {
+                $data = ContentIdea::findOrFail($id);
+            }else{
+                $data = ContentIdea::where('freelance_id',Auth::user()->id)->where('id',$id)->first();
+            }
 
-            return response()->json([
-                'status' => 'success',
-                'data' => $data, 
-            ], 200);
+            if($data){
+                return response()->json([
+                    'status' => 'success',
+                    'data' => $data, 
+                ], 200);
+            }else{
+                return response()->json([], 204);
+            }
     
         } catch (\Exception $e) {
             // Jika terjadi kesalahan
@@ -92,7 +116,11 @@ class ContentIdeaController extends Controller
     public function destroy($id)
     {
         try {
-            ContentIdea::destroy($id);
+            if (Auth::user()->role == 'admin') {
+                ContentIdea::destroy($id);
+            }else{
+                ContentIdea::where('freelance_id',$id)->destroy($id);
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => 'Content Idea deleted.'

@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Keyword;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -29,6 +30,7 @@ class KeywordsImport implements ToModel, WithHeadingRow
             'ads' => $row['ads'],
             'seo' => $row['seo'],
             'bahasa' => $this->language,
+            'freelance_id' => Auth::user()->id,
         ]);
     }
 

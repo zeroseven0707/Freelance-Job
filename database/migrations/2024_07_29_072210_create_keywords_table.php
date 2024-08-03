@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('keywords', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('freelance_id');
             $table->string('kata_kunci');
             $table->integer('volume');
             $table->string('cpc');

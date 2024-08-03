@@ -6,15 +6,31 @@ use App\Http\Controllers\Controller;
 use App\Imports\KeywordsImport;
 use App\Models\Keyword;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class KeywordController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $perPage = 10; // Jumlah item per halaman, bisa disesuaikan sesuai kebutuhan
-            $data = Keyword::paginate($perPage);
+           if (Auth::user()->role == 'admin') {
+                if ($request->freelanceId) {
+                    $data = Keyword::where('freelance_id',$request->freelanceId)->paginate($perPage);
+                }else{
+                    $data = Keyword::paginate($perPage);
+                }
+           }else{
+            if ($request->freelanceId) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Forbidden.'
+                    ], 403);
+                }else{
+                    $data = Keyword::where('freelance_id',Auth::user()->id)->paginate($perPage);
+                }
+           }
     
             // Format data paginasi
             $pagination = [
@@ -44,8 +60,11 @@ class KeywordController extends Controller
     public function show($id)
     {
         try {
+           if (Auth::user()->role == 'admin') {
             $data = Keyword::findOrFail($id);
-
+           }else{
+            $data = Keyword::where('freelance_id',Auth::user()->id)->where('id',$id)->first();
+           }
             return response()->json([
                 'status' => 'success',
                 'data' => $data, 
@@ -71,7 +90,11 @@ class KeywordController extends Controller
             'bahasa' => 'sometimes|required|string',
         ]);
         try{
+           if (Auth::user()->role == 'admin') {
             $keyword = Keyword::findOrFail($id);
+           }{
+            $keyword = Keyword::where('freelance_id',Auth::user()->id)->where('id',$id)->first();
+           }
             $keyword->update($request->all());
 
             return response()->json([
@@ -90,7 +113,11 @@ class KeywordController extends Controller
     public function destroy($id)
     {
         try {
+           if (Auth::user()->role == 'admin') {
             Keyword::destroy($id);
+           }else{
+               Keyword::where('freelance_id',Auth::user()->id)->where('id',$id)->first();
+           }
 
             return response()->json([
                 'status' => 'success',

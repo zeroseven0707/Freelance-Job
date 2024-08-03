@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\ContentIdea;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -33,6 +34,7 @@ class ContentIdeasImport implements ToModel, WithHeadingRow
             'backlink' => $row['backlink'],
             'facebook' => $row['facebook'],
             'bahasa' => $this->language,
+            'freelance_id' => Auth::user()->id,
         ]);
     }
 

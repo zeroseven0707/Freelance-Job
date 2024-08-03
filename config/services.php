@@ -30,5 +30,8 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
+    'api' => [
+        'base_url' => env('API_BASE_URL', 'https://14e0-2001-448a-3070-10a0-aedb-1efd-3726-ea81.ngrok-free.app/api/'),
+    ],
 
 ];

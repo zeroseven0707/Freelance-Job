@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('content_ideas', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('freelance_id');
             $table->string('judul');
             $table->string('url');
             $table->integer('est_visit');
